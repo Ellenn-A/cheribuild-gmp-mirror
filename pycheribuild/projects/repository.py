@@ -380,12 +380,12 @@ class GitRepository(SourceRepository):
             clone_branch = self.get_default_branch(current_project, include_per_target=False)
             if self._default_branch:
                 clone_cmd += ["--branch", clone_branch]
+            
             current_project.run_cmd([*clone_cmd, self.url, base_project_source_dir], cwd="/")
             # Could also do this but it seems to fetch more data than --no-single-branch
             # if self.config.shallow_clone:
             #    current_project.run_cmd(["git", "config", "remote.origin.fetch",
             #                             "+refs/heads/*:refs/remotes/origin/*"], cwd=src_dir)
-
         if src_dir == base_project_source_dir:
             return  # Nothing else to do
 
@@ -518,8 +518,8 @@ class GitRepository(SourceRepository):
         self,
         current_project: "Project",
         *,
-        src_dir: Path,
-        base_project_source_dir: "Optional[Path]" = None,
+        src_dir: Path, 
+        base_project_source_dir: "Optional[Path]" = None, 
         revision=None,
         skip_submodules=False,
     ):

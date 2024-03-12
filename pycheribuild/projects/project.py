@@ -394,6 +394,8 @@ def _default_source_dir(config: CheriConfig, project: "Project", subdir: Path = 
         # For projects that reuse other source directories, we return None to use the default for the source project.
         return None
     if project.default_directory_basename:
+        if project.default_directory_basename == "gmp":
+            project.default_directory_basename = "libgmp" # RENAMED THIS 
         return Path(config.source_root / subdir / project.default_directory_basename)
     return Path(config.source_root / subdir / project.target)
 
@@ -424,6 +426,9 @@ class Project(SimpleProject):
     can_run_parallel_install: bool = False  # Most projects don't work well with parallel installation
     default_source_dir: ComputedDefaultValue[Optional[Path]] = ComputedDefaultValue(
         function=_default_source_dir, as_string=lambda cls: "$SOURCE_ROOT/" + cls.default_directory_basename
+                # function=_default_source_dir, as_string=lambda cls: "$SOURCE_ROOT/" + "libgmp"
+
+        
     )
     # Some projects (e.g. python) need a native build for build tools, etc.
     needs_native_build_for_crosscompile: bool = False
@@ -919,7 +924,6 @@ class Project(SimpleProject):
         if hasattr(self, "_repository_url") and isinstance(self.repository, GitRepository):
             # TODO: remove this and use a custom argparse.Action subclass
             self.repository.url = self._repository_url
-
         if isinstance(self.default_directory_basename, ComputedDefaultValue):
             self.default_directory_basename = self.default_directory_basename(self.config, self)
         if isinstance(self.repository, ReuseOtherProjectRepository):
@@ -941,6 +945,7 @@ class Project(SimpleProject):
             if self.config.debug_output:
                 self.info("Cannot build", self.target, "in a separate build dir, will build in", self.source_dir)
             self.build_dir = self.source_dir
+        
 
         self.configure_command = None
         # non-assignable variables:
